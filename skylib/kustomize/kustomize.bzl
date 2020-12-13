@@ -195,6 +195,8 @@ def _kustomize_impl(ctx):
         tmpfiles.append(ctx.executable._resolver)
         for img in ctx.attr.images:
             kpi = img[K8sPushInfo]
+            print(kpi.digestfile.path)
+            print(kpi)
             regrepo = kpi.registry + "/" + kpi.repository
             if "{" in regrepo:
                 regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))
@@ -203,6 +205,8 @@ def _kustomize_impl(ctx):
             if kpi.legacy_image_name:
                 resolver_part += " --image {}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
             tmpfiles.append(kpi.digestfile)
+
+
 
     template_part = ""
     if ctx.attr.substitutions or ctx.attr.deps:
@@ -225,6 +229,28 @@ def _kustomize_impl(ctx):
             "--imports=%s=%s" % (k, d[str(ctx.label.relative(ctx.attr.deps_aliases[k]))])
             for k in ctx.attr.deps_aliases
         ])
+
+        print("----")
+        if ctx.attr.images:
+            for i, img in enumerate(ctx.attr.images):
+                kpi = img[K8sPushInfo]
+
+                print(i)
+                print(kpi.image_label)
+
+                ss = ""
+                regrepo = kpi.registry + "/" + kpi.repository
+                if "{" in regrepo:
+                    regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))
+
+                ss += " --image {}={}@$(cat {})".format(kpi.image_label, regrepo, kpi.digestfile.path)
+                if kpi.legacy_image_name:
+                    ss += " --image {}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
+                print(ss)
+        print("----")
+
+        template_part += "--variable=helloworld-image=docker-adcloud-release.dr-uw2.adobeitc.com/$(cat bazel-out/darwin-fastbuild/bin/external/com_adobe_rules_gitops/skylib/build_user_value.txt)/helloworld/image@$(cat bazel-out/darwin-fastbuild/bin/helloworld/image.digest)"
+        print(template_part)
         template_part += " "
 
     script = ctx.actions.declare_file("%s-kustomize" % ctx.label.name)
@@ -235,6 +261,9 @@ def _kustomize_impl(ctx):
         template_part = template_part,
         out = ctx.outputs.yaml.path,
     )
+
+    print(script_content)
+
     ctx.actions.write(script, script_content, is_executable = True)
 
     ctx.actions.run(

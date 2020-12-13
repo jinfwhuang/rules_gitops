@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -37,8 +38,13 @@ func TestNoError(t *testing.T) {
 		{"flinkapp", map[string]string{
 			"flinkapp-image": "docker.io/kube/flink/image:tag",
 		}},
+		{"zk", map[string]string{
+			"zk-image": "dummy",
+		}},
 	}
 	for _, testcase := range testcases {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 		t.Run(testcase.name, func(t *testing.T) {
 			infn := fmt.Sprintf("testdata/%s.yaml", testcase.name)
 			expectedfn := fmt.Sprintf("testdata/%s.expected.yaml", testcase.name)
@@ -61,7 +67,10 @@ func TestNoError(t *testing.T) {
 				return
 			}
 			if strings.TrimSpace(outbuf.String()) != expected {
-				t.Errorf("Unexpected output: %s", outbuf.String())
+				t.Errorf("expected: ||%s||", expected)
+				t.Errorf("%d", len(expected))
+				t.Errorf("got: ||%s||", strings.TrimSpace(outbuf.String()))
+				t.Errorf("%d", len(strings.TrimSpace(outbuf.String())))
 			}
 		})
 	}
