@@ -238,18 +238,15 @@ def _kustomize_impl(ctx):
                 print(i)
                 print(kpi.image_label)
 
-                ss = ""
                 regrepo = kpi.registry + "/" + kpi.repository
                 if "{" in regrepo:
-                    regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))
-
-                ss += " --image {}={}@$(cat {})".format(kpi.image_label, regrepo, kpi.digestfile.path)
+                    regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))                
+                template_part += " --variable={}={}@$(cat {})".format(kpi.image_label, regrepo, kpi.digestfile.path)
                 if kpi.legacy_image_name:
-                    ss += " --image {}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
-                print(ss)
+                    template_part += " --variable={}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
         print("----")
 
-        template_part += "--variable=helloworld-image=docker-adcloud-release.dr-uw2.adobeitc.com/$(cat bazel-out/darwin-fastbuild/bin/external/com_adobe_rules_gitops/skylib/build_user_value.txt)/helloworld/image@$(cat bazel-out/darwin-fastbuild/bin/helloworld/image.digest)"
+        # template_part += "--variable=helloworld-image=docker-adcloud-release.dr-uw2.adobeitc.com/$(cat bazel-out/darwin-fastbuild/bin/external/com_adobe_rules_gitops/skylib/build_user_value.txt)/helloworld/image@$(cat bazel-out/darwin-fastbuild/bin/helloworld/image.digest)"
         print(template_part)
         template_part += " "
 
