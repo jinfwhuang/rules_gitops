@@ -230,24 +230,17 @@ def _kustomize_impl(ctx):
             for k in ctx.attr.deps_aliases
         ])
 
-        print("----")
+        # Image name substitutions
         if ctx.attr.images:
             for i, img in enumerate(ctx.attr.images):
                 kpi = img[K8sPushInfo]
-
-                print(i)
-                print(kpi.image_label)
-
                 regrepo = kpi.registry + "/" + kpi.repository
                 if "{" in regrepo:
-                    regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))                
+                    regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))
                 template_part += " --variable={}={}@$(cat {})".format(kpi.image_label, regrepo, kpi.digestfile.path)
                 if kpi.legacy_image_name:
                     template_part += " --variable={}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
-        print("----")
 
-        # template_part += "--variable=helloworld-image=docker-adcloud-release.dr-uw2.adobeitc.com/$(cat bazel-out/darwin-fastbuild/bin/external/com_adobe_rules_gitops/skylib/build_user_value.txt)/helloworld/image@$(cat bazel-out/darwin-fastbuild/bin/helloworld/image.digest)"
-        print(template_part)
         template_part += " "
 
     script = ctx.actions.declare_file("%s-kustomize" % ctx.label.name)
@@ -258,9 +251,6 @@ def _kustomize_impl(ctx):
         template_part = template_part,
         out = ctx.outputs.yaml.path,
     )
-
-    print(script_content)
-
     ctx.actions.write(script, script_content, is_executable = True)
 
     ctx.actions.run(
