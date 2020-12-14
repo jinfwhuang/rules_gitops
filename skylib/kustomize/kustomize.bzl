@@ -195,8 +195,6 @@ def _kustomize_impl(ctx):
         tmpfiles.append(ctx.executable._resolver)
         for img in ctx.attr.images:
             kpi = img[K8sPushInfo]
-            print(kpi.digestfile.path)
-            print(kpi)
             regrepo = kpi.registry + "/" + kpi.repository
             if "{" in regrepo:
                 regrepo = stamp(ctx, regrepo, tmpfiles, ctx.attr.name + regrepo.replace("/", "_"))
@@ -205,8 +203,6 @@ def _kustomize_impl(ctx):
             if kpi.legacy_image_name:
                 resolver_part += " --image {}={}@$(cat {})".format(kpi.legacy_image_name, regrepo, kpi.digestfile.path)
             tmpfiles.append(kpi.digestfile)
-
-
 
     template_part = ""
     if ctx.attr.substitutions or ctx.attr.deps:
