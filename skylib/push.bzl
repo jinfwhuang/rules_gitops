@@ -71,10 +71,6 @@ def _impl(ctx):
         pusher_args += ["-stamp-info-file", "%s" % _get_runfile_path(ctx, f)]
     pusher_input += stamp_inputs
 
-    print(stamp)
-    print(stamp_inputs)
-    print(pusher_input)
-
     # Construct container_parts for input to pusher.
     image = _get_layers(ctx, ctx.label.name, ctx.attr.image)
     pusher_img_args, pusher_img_inputs = _gen_img_args(ctx, image, _get_runfile_path)
@@ -96,11 +92,6 @@ def _impl(ctx):
         tools = ctx.attr._digester[DefaultInfo].default_runfiles.files,
         mnemonic = "ContainerPushDigest",
     )
-
-    print(digester_input)
-    print(digester_args)
-    print(ctx.executable._digester)
-    print(ctx.executable._pusher)
 
     if ctx.attr.image_digest_tag:
         tag = "$(cat {} | cut -d ':' -f 2 | cut -c 1-7)".format(_get_runfile_path(ctx, ctx.outputs.digest))
@@ -132,9 +123,6 @@ def _impl(ctx):
     runfiles = ctx.runfiles(files = pusher_runfiles)
     runfiles = runfiles.merge(ctx.attr._pusher[DefaultInfo].default_runfiles)
 
-    print(runfiles)
-    print(ctx.attr._pusher)
-    print(ctx.actions)
     return [
         DefaultInfo(
             executable = ctx.outputs.executable,

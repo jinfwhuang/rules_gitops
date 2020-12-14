@@ -44,8 +44,6 @@ def _show_impl(ctx):
     # ensure kustomize outputs are separated by '---' delimiters
     script_content += "echo '---'\n".join(kustomize_outputs)
 
-    print(script_content)
-
     ctx.actions.write(ctx.outputs.executable, script_content, is_executable = True)
     return [
         DefaultInfo(runfiles = ctx.runfiles(files = [ctx.executable._template_engine, ctx.file._info_file] + ctx.files.src)),
@@ -97,9 +95,6 @@ def _image_pushes(name_suffix, images, image_registry, image_repository, image_r
                 repository = image_repository,
                 repository_prefix = image_repository_prefix,
             )
-
-    "k8s.bzl image pushes"
-    print(image_pushes)
     return image_pushes
 
 def k8s_deploy(
@@ -155,8 +150,6 @@ def k8s_deploy(
         # Mynamespace option
         if not namespace:
             namespace = "{BUILD_USER}"
-
-        print("image_push")
         image_pushes = _image_pushes(
             name_suffix = "-mynamespace.push",
             images = images,
@@ -165,9 +158,6 @@ def k8s_deploy(
             image_repository_prefix = "{BUILD_USER}",
             image_digest_tag = image_digest_tag,
         )
-        print(image_pushes)
-        print("image_push")
-
         kustomize(
             name = name,
             namespace = namespace,
