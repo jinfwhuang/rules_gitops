@@ -51,8 +51,8 @@ var (
 )
 
 func bazelQuery(query string) *analysis.CqueryResult {
-	log.Println("Executing bazel cquery ", query)
-	cmd := oe.Command(*bazelCmd, "cquery", query, "--output=proto")
+	log.Println("Executing bazel query ", query)
+	cmd := oe.Command(*bazelCmd, "query", query, "--output=proto")
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		log.Fatal(err)
